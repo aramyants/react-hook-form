@@ -11,11 +11,13 @@ const schema = z.object({
   channel: z.string().min(1, { message: "Channel is required" }),
 });
 
-type FormValues = {
-  username: string;
-  email: string;
-  channel: string;
-};
+// type FormValues = {
+//   username: string;
+//   email: string;
+//   channel: string;
+// };
+
+type FormValues = z.infer<typeof schema>
 
 export const ZodYoutubeForm = () => {
   const form = useForm<FormValues>({

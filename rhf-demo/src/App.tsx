@@ -1,12 +1,9 @@
-import './App.css'
-import { YoutubeForm } from './components/YoutubeForm'
-import { YupYoutubeForm } from './components/YupYoutubeForm'
-import { ZodYoutubeForm } from './components/ZodYoutubeForm'
+import { MuiLoginForm } from './components/MuiLoginForm'
 
 function App() {
   return (
     <>
-      <ZodYoutubeForm />
+      <MuiLoginForm />
     </>
   )
 }
