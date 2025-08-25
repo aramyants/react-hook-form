@@ -1,5 +1,6 @@
 import { DevTool } from '@hookform/devtools';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useFieldArray, useForm, type FieldErrors } from 'react-hook-form';
 
 let renderCount = 0;
 
@@ -13,6 +14,8 @@ type FormValues = {
   };
   phoneNumbers: string[];
   phNumbers: { number: string }[];
+  age: number;
+  dob: Date;
 };
 
 export const YoutubeForm = () => {
@@ -27,17 +30,37 @@ export const YoutubeForm = () => {
       },
       phoneNumbers: ['', ''],
       phNumbers: [{ number: '' }],
+      age: 0,
+      dob: new Date(),
     },
   });
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, touchedFields, dirtyFields, isDirty },
+    watch,
+    getValues,
+    setValue,
   } = form;
 
   const onSubmit = (data: FormValues) => {
     console.log('Form submitted', data);
+  };
+
+  // useEffect(() => {
+  //   const subscription = watch((value) => {
+  //     console.log(value);
+  //   });
+  //   return () => subscription.unsubscribe();
+  // }, [watch]);
+
+  const handleGetValues = () => {
+    console.log('Form values:', getValues());
+  };
+
+  const handleSetValue = () => {
+     setValue("username", "Superman", { shouldDirty: true, shouldTouch: true, shouldValidate: true });
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -45,12 +68,22 @@ export const YoutubeForm = () => {
     control,
   });
 
+
+  const onError = (errors: FieldErrors<FormValues>) => {
+    console.log('Form errors:', errors);
+  };
+
+  console.log({ touchedFields, dirtyFields, isDirty });
+
+  // const watchForm = watch();
+
   renderCount++;
 
   return (
     <div>
       <h1>Youtube Form ({renderCount / 2})</h1>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      {/* <h2>Watched value: {JSON.stringify(watchForm)}</h2> */}
+      <form onSubmit={handleSubmit(onSubmit, onError)} noValidate>
         <div className="form-control">
           <label htmlFor="username">Username</label>
           <input
@@ -117,7 +150,13 @@ export const YoutubeForm = () => {
 
         <div className="form-control">
           <label htmlFor="twitter">Twitter</label>
-          <input type="text" id="twitter" {...register('social.twitter', {})} />
+          <input type="text" id="twitter" {...register('social.twitter', {
+            required: {
+              value: true,
+              message: 'Twitter handle is required',
+            },
+            disabled: watch('channel') === '',
+          })} />
         </div>
 
         <div className="form-control">
@@ -172,7 +211,45 @@ export const YoutubeForm = () => {
           ))}
         </div>
 
+        <div className="form-control">
+          <label htmlFor="age">Age</label>
+          <input
+            type="number"
+            id="age"
+            {...register('age', {
+              valueAsNumber: true,
+              required: {
+                value: true,
+                message: 'Age is required',
+              },
+            })}
+          />
+          <p className="error">{errors.age?.message}</p>
+        </div>
+
+        <div className="form-control">
+          <label htmlFor="dob">Date of birth</label>
+          <input
+            type="date"
+            id="dob"
+            {...register('dob', {
+              valueAsDate: true,
+              required: {
+                value: true,
+                message: 'Date of birth is required',
+              },
+            })}
+          />
+          <p className="error">{errors.dob?.message}</p>
+        </div>
+
         <button type="submit">Submit</button>
+        <button type="button" onClick={handleGetValues}>
+          Get Values
+        </button>
+        <button type="button" onClick={handleSetValue}>
+          Set Values
+        </button>
       </form>
       <DevTool control={control} />
     </div>
