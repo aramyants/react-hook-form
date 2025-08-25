@@ -1,30 +1,14 @@
 import { DevTool } from '@hookform/devtools';
 import { useForm, type FieldErrors } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from "zod";
 
 let renderCount = 0;
 
-const schema = Yup.object({
-  username: Yup.string()
-    .required('Username is required')
-    .min(3, 'Username must be at least 3 characters'),
-  email: Yup.string()
-    .required('Email is required')
-    .email('Invalid email address')
-    .notOneOf(['admin@example.com'], 'Username cannot be admin')
-    .notOneOf(['baddomain.com'], 'This domain is not supported')
-    .test('endsWithCom', 'Email must end with .com', (value) => {
-      return value?.endsWith('.com');
-    })
-    .test('emailAvailable', 'Email already exists', async (value) => {
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/users?email=${value}`
-      );
-      const data = await response.json();
-      return data.length === 0;
-    }),
-  channel: Yup.string().required('Channel is required'),
+const schema = z.object({
+  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
+  email: z.string().email({ message: "Email must be a valid email" }),
+  channel: z.string().min(1, { message: "Channel is required" }),
 });
 
 type FormValues = {
@@ -33,14 +17,14 @@ type FormValues = {
   channel: string;
 };
 
-export const YupYoutubeForm = () => {
+export const ZodYoutubeForm = () => {
   const form = useForm<FormValues>({
     defaultValues: {
       username: 'Batman',
       email: '',
       channel: '',
     },
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
   });
 
   const {
@@ -62,7 +46,7 @@ export const YupYoutubeForm = () => {
 
   return (
     <div>
-      <h1>Yup Youtube Form ({renderCount / 2})</h1>
+      <h1>Zod Youtube Form ({renderCount / 2})</h1>
       <form onSubmit={handleSubmit(onSubmit, onError)} noValidate>
         <div className="form-control">
           <label htmlFor="username">Username</label>
